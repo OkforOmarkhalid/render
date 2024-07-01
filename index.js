@@ -6,30 +6,47 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-let buildings = {
-  1: { id: 1, slots: 0 },
-  2: { id: 2, slots: "SOON" },
-  3: { id: 3, slots: "SOON" },
-  4: { id: 4, slots: "SOON" },
-  5: { id: 5, slots: "SOON" }
-};
+// Initialize the buildings array
+let buildings = [
+  { id: 1, slots: 0 },
+  { id: 2, slots: "SOON" },
+  { id: 3, slots: "SOON" },
+  { id: 4, slots: "SOON" },
+  { id: 5, slots: "SOON" }
+];
 
-// Endpoint to update the number of empty slots for Building 1
-app.post('/update-slots', (req, res) => {
-    buildings[1].slots = req.body.slots;
-    res.send('Data received');
+// Endpoint to update the number of empty slots for a specific building
+app.post('/update-slots/:buildingId', (req, res) => {
+    const buildingId = parseInt(req.params.buildingId, 10);
+    const building = buildings.find(b => b.id === buildingId);
+    if (building) {
+        building.slots = req.body.slots;
+        res.send(`Data received for Building ${buildingId}`);
+    } else {
+        res.status(404).send('Building not found');
+    }
 });
 
-// Endpoints to get the number of empty slots for each building
+// Endpoint to get the number of empty slots for a specific building
 app.get('/slots/:buildingId', (req, res) => {
     const buildingId = parseInt(req.params.buildingId, 10);
-    const building = buildings[buildingId];
+    const building = buildings.find(b => b.id === buildingId);
     if (building) {
         res.json(building);
     } else {
         res.status(404).send('Building not found');
     }
 });
+
+// Endpoint to get the list of all buildings
+app.get('/buildings', (req, res) => {
+    res.json(buildings);
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
